@@ -3,6 +3,9 @@ import {CustomerModel} from "../model/CustomerModel.js";
 
 var row_index = null;
 
+const sriLankanMobileNumberRegex = /^(\+94|0)[1-9][0-9]{8}$/;
+const regMobile = new RegExp(sriLankanMobileNumberRegex);
+
 
 const loadStudentData = () => {
     $('#customer-tbl-body').empty(); // make tbody empty
@@ -27,17 +30,40 @@ $("#save_customer[type='button']").on("click", () => {
         let address = $("#address").val();
         let contact = $("#contact").val();
 
-        let customer_object = new CustomerModel(cust_id, name, address, contact);
+        if (cust_id) {
+            if (name) {
+                if (address) {
 
-        // save in the db
-        customer_db.push(customer_object);
+                    var contactValid = regMobile.test(contact);
 
-        // clear();
-        $("#customer_reset[type='reset']").click();
+                    if (contact && contactValid) {
+                        let customer_object = new CustomerModel(cust_id, name, address, contact);
 
-        // load student data
-        loadStudentData();
-        toastr.success("Customer successfully added...✅");
+                        // save in the db
+                        customer_db.push(customer_object);
+
+                        // clear();
+                        $("#customer_reset[type='reset']").click();
+
+                        // load student data
+                        loadStudentData();
+                        toastr.success("Customer successfully added...✅");
+
+                    } else {
+                        toastr.error("Contact is empty or invalid...❌");
+                    }
+
+
+                } else {
+                    toastr.error("Address is empty...❌");
+                }
+
+            } else {
+                toastr.error("Name is empty...❌");
+            }
+        } else {
+            toastr.error("Customer ID is empty...❌");
+        }
 
 
     } else {
